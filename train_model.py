@@ -9,8 +9,18 @@ import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 import gensim
 import sklearn
+
+if(tf.test.is_gpu_available()):
+    print("GPU in use")
+else:
+    raise Exception("No GPU in use")  
+
+
+print("Loading w2v file (takes forever")
 w2v = gensim.models.KeyedVectors.load_word2vec_format("w2vfile", binary=True)
 
+
+print("Loading finnhub")
 fh_client = finnhub.Client(api_key = "bv2o3vn48v6ubfuli7h0")
 WORD_DEPTH = 300
 
@@ -19,7 +29,7 @@ WORD_DEPTH = 300
 
 
 symbols = [equity['symbol'] for equity in  fh_client.stock_symbols('US')]
-
+print("Clean Data")
 #Create Data
 data = list()
 for symbol in symbols:
@@ -89,15 +99,15 @@ for symbol in symbols:
             else:
                 x_pad.append(i)
 
-        security_data.append({'transcript': , 
-                            'eps_surprise': eps_surprise})
+        security_data.append({'transcript': x, 
+                            'eps_surprise': y})
     data.append(security_data)
 
-
+print("Prep Data")
 max_len = 0 
 for stock in data:
-    for sdata in stock
-        for t in sdata['transcript']
+    for sdata in stock:
+        for t in sdata['transcript']:
             if t.shape[0] > max_len:
                 max_len = t.shape[0]
     x_pad = list()
@@ -120,7 +130,7 @@ for stock in data:
     y = np.stack(y, axis=0)
 
 
-
+print("Building model")
 
 
 model = Sequential()
@@ -143,7 +153,7 @@ model.add(layers.Dense(1))
 model.build()
 
 model.compile(optimizer=keras.optimizers.Adadelta(), loss=losses.MeanSquaredError())
-
+print("Model built, training model. See ya in a few years")
 
 
 import math
