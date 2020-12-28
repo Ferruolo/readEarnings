@@ -105,44 +105,48 @@ for symbol in symbols:
 
 
                 transcript_text.append(vectors)
-                for i in range(5, len(transcripts)):
-                    eps_surprise = (fin_data[i]['dilutedEPS'] - eps_estimates[i]['epsAvg'])/eps_estimates[i]['epsAvg']
-                    t_seq = transcript_text[i-5:i-1]
+            
+            x = list() 
+            y = list() 
+            for i in range(5, len(transcripts)):
+                eps_surprise = (fin_data[i]['dilutedEPS'] - eps_estimates[i]['epsAvg'])/eps_estimates[i]['epsAvg']
+                t_seq = transcript_text[i-5:i-1]
 
-                    x = [np.concatenate(i[0], axis=0) for i in t_seq]
+                x_val = [np.concatenate(i[0], axis=0) for i in t_seq]
 
-                    y = [np.array(i[1]) for i in eps_surprise]
+                y_val = [np.array(i[1]) for i in eps_surprise]
 
-                    max_len = max(x, key = lambda i: i.shape[0]).shape[0]
-                    x_pad = list()
-                    for i in x:
+                max_len = max(x, key = lambda i: i.shape[0]).shape[0]
+                x_pad = list()
+                for i in x_val:
+                    
+                    difference = MAX_LEN - i.shape[0]
+                    if difference != MAX_LEN:
+                        pad_matrix = np.zeros((difference, 300))
                         
-                        difference = MAX_LEN - i.shape[0]
-                        if difference != MAX_LEN:
-                            pad_matrix = np.zeros((difference, 300))
-                            
-                            padded = np.concatenate([i, pad_matrix], axis=0)
-                            x_pad.append(padded)
-                        else:
-                            x_pad.append(i)
+                        padded = np.concatenate([i, pad_matrix], axis=0)
+                        x_pad.append(padded)
+                    else:
+                        x_pad.append(i)
+                x.append(x_pad)
+                y.append(y_val)
 
 
 
-
-                    x = np.stack(x_pad, axis=0)
-                    y = np.stack(y, axis=0)
-                    
+            x = np.stack(x_pad, axis=0)
+            y = np.stack(y, axis=0)
+            
 
 
 
 
 
-                    batch_size = len(stock)
-                    
+            batch_size = x.shape(1)
+            
 
 
-                    model.fit(x=x, y=y, batch_size = batch_size, epochs=500, verbose=2)
-                    model.save('model.h5')
+            model.fit(x=x, y=y, batch_size = batch_size, epochs=500, verbose=2)
+            model.save('model.h5')
     finally:
         print(symbol)
 
